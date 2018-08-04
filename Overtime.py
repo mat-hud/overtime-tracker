@@ -1,15 +1,18 @@
-import tkinter as tk
-from tkinter import font as tkfont
+import tkinter as tk          
+from tkinter import font  as tkfont
+
 import matplotlib as plt
 from matplotlib import style
 import datetime
 from datetime import datetime
 
+       
 class OvertimeApp(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
         
-        self.title_font = tkfont.Font(family = 'Helvetic', size=10, weight='bold')
+        self.title_font = tkfont.Font(family='Helvetica', size=12, weight="bold")
+        self.sub_title_font = tkfont.Font(family='Helvetica', size=8, weight="bold")
         self.title('Overtime')
         container = tk.Frame(self)
         container.pack(side='top', fill='both', expand=True)
@@ -31,18 +34,20 @@ class OvertimeApp(tk.Tk):
         frame.tkraise()     
      
       
-class HomePage(tk.Frame):
-    
+class HomePage(tk.Frame):   
+
+          
     def __init__(self, parent, controller):
+        
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label = tk.Label(self, text='This is the home page', font=controller.title_font)
         label.grid(row=1, column=2)
-       
         self.time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self.timelabel = tk.Label(self, text=self.time, font=controller.title_font)
+        self.timelabel = tk.Label(self, text=self.time, font=controller.sub_title_font)
         self.timelabel.grid(row=2, column=2)
         self.update_time()
+        self.onsite = False
         
         button1 = tk.Button(self, text='Page One',
                              command = lambda: controller.show_frame('PageOne'))
@@ -54,9 +59,19 @@ class HomePage(tk.Frame):
                              command = lambda: controller.show_frame('Settings'))    
                               
         
-        cibutton = tk.Button(self, text='Check In')
-        cobutton = tk.Button(self, text='Check Out')
-        rsbutton = tk.Button(self, text='Reset')        
+        cibutton = tk.Button(self, text='Check In',
+                             command = self.check_in_time)
+        cobutton = tk.Button(self, text='Check Out',
+                             command = self.check_out_time)
+        rsbutton = tk.Button(self, text='Reset',
+                             command = self.check_in_reset)        
+        
+        self.citime_text = ''
+        self.cilabel = tk.Label(self, text=self.citime_text)
+        self.cilabel.grid(row=3, column=2)
+        self.cotime_text = ''
+        self.colabel = tk.Label(self, text= self.cotime_text)
+        self.colabel.grid(row=4, column=2)
         
         cibutton.grid(row=3, column=1,columnspan=2,sticky='W',padx=1,pady=1)                      
         cobutton.grid(row=4, column=1,columnspan=2,sticky='W',padx=1,pady=1)
@@ -65,14 +80,51 @@ class HomePage(tk.Frame):
         button2.grid(row=10, column=2,sticky='S',padx=2,pady=2)
         button3.grid(row=10, column=3,sticky='SE',padx=2,pady=2)
         
-        
+         
     def update_time(self):
         timenow = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.time = timenow
         self.timelabel.config(text=self.time)
-        self.timelabel.after(1000, self.update_time)        
+        self.timelabel.after(200, self.update_time)  
+      
 
-   
+    def check_in_time(self):
+        
+        if self.onsite == False:
+            self.onsite = True
+            self.citime = datetime.now()
+            self.citime_text = datetime.now().strftime(' %H:%M ')
+            self.update_label()
+    
+    def check_out_time(self):
+        if self.onsite == True:
+            self.cotime = datetime.now()
+            self.cotime_text = self.cotime.strftime(' %H:%M ')
+            self.update_label()
+            self.overtime_calc()
+
+    def check_in_reset(self):
+        self.onsite = False
+        self.cotime_text = ''
+        self.citime_text = ''
+        self.update_label()  
+        
+    def update_label(self):
+       self.cilabel.config(text=self.citime_text)
+       self.colabel.config(text=self.cotime_text)
+    
+    def overtime_calc(self):
+     
+       timein = self.cotime - self.citime
+       overtime = timein
+       print(overtime)
+        
+        
+
+
+       
+
+
 class PageOne(tk.Frame):
     
     def __init__(self, parent, controller):
@@ -98,18 +150,63 @@ class PageTwo(tk.Frame):
                            command = lambda: controller.show_frame('HomePage'))
         button.pack()
 
+
 class Settings(tk.Frame):
     
+ 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label = tk.Label(self, text='Settings', font=controller.title_font)
-        label.pack(side='top', fill='x', pady=10)
+        label.grid(row=1, column=2, padx=2, pady=2)
         
         button = tk.Button(self, text='Home',
                            command = lambda: controller.show_frame('HomePage'))
-        button.pack()
-                
+                           
+        button.grid(row=10, column=1,sticky='SW',padx=2,pady=2)
+
+        self.shiftpatten = ['','1','2','3','4']        
+     
+        e1label = tk.Label(self, text='Start Time')
+        e1label.grid(row=3,column=1)
+        e2label = tk.Label(self, text='Start Time')
+        e2label.grid(row=4,column=1)
+        e3label = tk.Label(self, text='Start Time')
+        e3label.grid(row=3,column=3)
+        e4label = tk.Label(self, text='Start Time')
+        e4label.grid(row=4,column=3)
+        
+       
+        
+        e1 = tk.Entry(self, width=10)
+        e1.grid(row=3, column=2)
+        e2 = tk.Entry(self, width=10)
+        e2.grid(row=4, column=2)
+        e3 = tk.Entry(self, width=10)
+        e3.grid(row=5, column=2)
+        e4 = tk.Entry(self, width=10)
+        e4.grid(row=6, column=2)
+        e5 = tk.Entry(self, width=10)
+        e5.grid(row=3, column=4)
+        e6 = tk.Entry(self, width=10)
+        e6.grid(row=4, column=4)
+        e7 = tk.Entry(self, width=10)
+        e7.grid(row=5, column=4)
+        e8 = tk.Entry(self, width=10)
+        e8.grid(row=6, column=4)
+        
+       
+        #var = tk.StringVar()
+        #var.set(self.shiftpatten[0])
+        #self.dd = tk.OptionMenu(Settings(), var, self.shiftpatten)
+        #ddlabel.grid(row=7,column=2)
+        
+        
+    def click(self):
+        entered_text = entry.get()
+        
+    
+       
 if __name__ == '__main__':
     app = OvertimeApp()
     app.mainloop()
